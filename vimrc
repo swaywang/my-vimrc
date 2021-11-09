@@ -1,15 +1,14 @@
-" vgod's vimrc
-" Tsung-Hsiang (Sean) Chang <vgod@vgod.tw>
-" Fork me on GITHUB  https://github.com/vgod/vimrc
-
-" read https://github.com/vgod/vimrc/blob/master/README.md for more info
-
+" sway's vimrc
+" Sway Wang <sway.khwang@gmail.com>
+" Fork from  https://github.com/vgod/vimrc
 
 " For pathogen.vim: auto load all plugins in .vim/bundle
 
+set tags=./tags;/
+
 let g:pathogen_disabled = []
 if !has('gui_running')
-   call add(g:pathogen_disabled, 'powerline')
+    call add(g:pathogen_disabled, 'powerline')
 endif
 
 call pathogen#runtime_append_all_bundles()
@@ -22,14 +21,16 @@ set bs=2		" allow backspacing over everything in insert mode
 set history=50		" keep 50 lines of command line history
 set ruler		" show the cursor position all the time
 set autoread		" auto read when file is changed from outside
+set nu
 
+let python_highlight_all = 1
 
 filetype off          " necessary to make ftdetect work on Linux
 syntax on
 filetype on           " Enable filetype detection
 filetype indent on    " Enable filetype-specific indenting
 filetype plugin on    " Enable filetype-specific plugins
-
+fixdel
 
 " auto reload vimrc when editing it
 autocmd! bufwritepost .vimrc source ~/.vimrc
@@ -38,17 +39,8 @@ autocmd! bufwritepost .vimrc source ~/.vimrc
 syntax on		" syntax highlight
 set hlsearch		" search highlighting
 
-if has("gui_running")	" GUI color and font settings
-  set guifont=Osaka-Mono:h20
-  set background=dark 
-  set t_Co=256          " 256 color mode
-  set cursorline        " highlight current line
-  colors moria
-  highlight CursorLine          guibg=#003853 ctermbg=24  gui=none cterm=none
-else
-" terminal color settings
-  colors vgod
-endif
+
+set background=dark 
 
 set clipboard=unnamed	" yank to the system register (*) by default
 set showmatch		" Cursor shows matching ) and }
@@ -75,8 +67,9 @@ set tm=500
 
 " TAB setting{
    set expandtab        "replace <TAB> with spaces
-   set softtabstop=3 
-   set shiftwidth=3 
+   set softtabstop=4 
+   set shiftwidth=4
+   set tabstop=4
 
    au FileType Makefile set noexpandtab
 "}      							
@@ -203,9 +196,6 @@ cmap cd. lcd %:p:h
 " PROGRAMMING SHORTCUTS
 "--------------------------------------------------------------------------- 
 
-" Ctrl-[ jump out of the tag stack (undo Ctrl-])
-map <C-[> <ESC>:po<CR>
-
 " ,g generates the header guard
 map <leader>g :call IncludeGuard()<CR>
 fun! IncludeGuard()
@@ -213,10 +203,10 @@ fun! IncludeGuard()
    let guard = '_' . substitute(toupper(basename), '\.', '_', "H")
    call append(0, "#ifndef " . guard)
    call append(1, "#define " . guard)
+   call append(3, "namespace {")
+   call append( line("$") - 2, "} // namespace" . guard)
    call append( line("$"), "#endif // for #ifndef " . guard)
 endfun
-
-
 
 " Enable omni completion. (Ctrl-X Ctrl-O)
 autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
@@ -235,82 +225,12 @@ if has("autocmd") && exists("+omnifunc")
               \	endif
 endif
 
-set cot-=preview "disable doc preview in omnicomplete
-
 " make CSS omnicompletion work for SASS and SCSS
 autocmd BufNewFile,BufRead *.scss             set ft=scss.css
 autocmd BufNewFile,BufRead *.sass             set ft=sass.css
 
-"--------------------------------------------------------------------------- 
-" ENCODING SETTINGS
-"--------------------------------------------------------------------------- 
-set encoding=utf-8                                  
-set termencoding=utf-8
-set fileencoding=utf-8
-set fileencodings=ucs-bom,utf-8,big5,gb2312,latin1
-
-fun! ViewUTF8()
-	set encoding=utf-8                                  
-	set termencoding=big5
-endfun
-
-fun! UTF8()
-	set encoding=utf-8                                  
-	set termencoding=big5
-	set fileencoding=utf-8
-	set fileencodings=ucs-bom,big5,utf-8,latin1
-endfun
-
-fun! Big5()
-	set encoding=big5
-	set fileencoding=big5
-endfun
-
-
-"--------------------------------------------------------------------------- 
-" PLUGIN SETTINGS
-"--------------------------------------------------------------------------- 
-
-
-" ------- vim-latex - many latex shortcuts and snippets {
-
-" IMPORTANT: win32 users will need to have 'shellslash' set so that latex
-" can be called correctly.
-set shellslash
-set grepprg=grep\ -nH\ $*
-" OPTIONAL: Starting with Vim 7, the filetype of empty .tex files defaults to
-" 'plaintex' instead of 'tex', which results in vim-latex not being loaded.
-" The following changes the default filetype back to 'tex':
-let g:tex_flavor='latex'
-
-"}
-
-
-" --- AutoClose - Inserts matching bracket, paren, brace or quote 
-" fixed the arrow key problems caused by AutoClose
-if !has("gui_running")	
-   set term=linux
-   imap OA <ESC>ki
-   imap OB <ESC>ji
-   imap OC <ESC>li
-   imap OD <ESC>hi
-
-   nmap OA k
-   nmap OB j
-   nmap OC l
-   nmap OD h
-endif
-
-
-
-" --- Command-T
-let g:CommandTMaxHeight = 15
-
 " --- SuperTab
 let g:SuperTabDefaultCompletionType = "context"
-let g:SuperTabCompletionContexts = ['s:ContextText', 's:ContextDiscover']
-let g:SuperTabContextDiscoverDiscovery = ["&completefunc:<c-x><c-u>", "&omnifunc:<c-x><c-o>"]
-
 
 " --- EasyMotion
 "let g:EasyMotion_leader_key = '<Leader>m' " default is <Leader>w
@@ -324,19 +244,28 @@ nnoremap <silent> <F7> :TagbarToggle<CR>
 " set focus to TagBar when opening it
 let g:tagbar_autofocus = 1
 
-" --- PowerLine
-" let g:Powerline_symbols = 'fancy' " require fontpatcher
-"
+" --- NERDTree
+nnoremap <Leader>tt :NERDTree<CR>
 
 " --- SnipMate
 let g:snipMateAllowMatchingDot = 0
 
-" --- coffee-script
-au BufWritePost *.coffee silent CoffeeMake! -b | cwindow | redraw! " recompile coffee scripts on write
+set t_Co=256          " 256 color mode
 
-" --- vim-gitgutter
-let g:gitgutter_enabled = 1
 
-" set ejs filetype to html
-au BufNewFile,BufRead *.ejs set filetype=html
+" make your scrolling to control up and down
+set ttymouse=xterm
+:map <M-Esc>[62~ <MouseDown>
+:map! <M-Esc>[62~ <MouseDown>
+:map <M-Esc>[63~ <MouseUp>
+:map! <M-Esc>[63~ <MouseUp>
+:map <M-Esc>[64~ <S-MouseDown>
+:map! <M-Esc>[64~ <S-MouseDown>
+:map <M-Esc>[65~ <S-MouseUp>
+:map! <M-Esc>[65~ <S-MouseUp>]
 
+map <A-]> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
+map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
+
+colorscheme sway_wombat256
+set cursorline
